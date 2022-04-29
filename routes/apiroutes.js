@@ -1,4 +1,5 @@
 const express = require("express").Router();
+const { notStrictEqual } = require("assert");
 const fs = require("fs")
 let db = require("../db/db.json")
 
@@ -19,8 +20,16 @@ express.post('/notes',(req, res) => {
     res.json(db)
 }) 
 express.delete('/notes/:id',(req, res) => {
-    fs.writeFileSync('./db/db.json', JSON.stringify(db))
-    res.json(db)
+    let notes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+    let noteId = (req.params.id).toString();
+
+    notes = notes.filter(selected => {
+        return selected.id != noteId;
+    })
+
+    fs.writeFileSync("./db/db.json", JSON.stringify(notes));
+    res.json(notes);
+    
 }) 
 
 module.exports = express
